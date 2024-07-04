@@ -1,0 +1,117 @@
+import csv
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+
+def Money_In_Frame():
+    Total_sal = Total_sal_entry.get()
+    Additional_income = Additional_income_entry.get()
+    month = month_var.get()
+    if not Total_sal or not Additional_income or not month:
+        messagebox.showwarning("Input Error", "Please fill in all fields")
+        return None
+    Total_income = int(Total_sal) + int(Additional_income)
+    return month, Total_income
+
+def write_money_in_csv():
+    Money_In_data = Money_In_Frame()
+    if Money_In_data:
+        month, Total_income = Money_In_data
+        filename = month + ".csv"
+        with open(filename, "a", newline='') as Money_infile:
+            writer = csv.writer(Money_infile)
+            writer.writerow(Money_In_data)
+
+def Money_out_frame():
+    category = category_var.get()
+    date = entry_date.get()
+    expenditure = entry_expenditure.get()
+    if not category or not date or not expenditure:
+        messagebox.showwarning("Input Error", "Please fill in all fields")
+        return None
+    return category, date, expenditure
+
+def write_money_out_csv():
+    Money_Out_data = Money_out_frame()
+    if Money_Out_data:
+        category, date, expenditure = Money_Out_data
+        filename = "Expenses.csv"
+        with open(filename, "a", newline='') as Money_outfile:
+            writer = csv.writer(Money_outfile)
+            writer.writerow(Money_Out_data)
+
+# Initialize the main window
+window = tk.Tk()
+window.title("PERSONAL_BUDGET_TRACKER")
+window.geometry("800x600")
+window.configure(background='grey')
+
+# Top Frame
+frame_top = tk.Frame(window, height=50, bg='lightblue')
+frame_top.pack(side=tk.TOP, fill=tk.X)
+label_top = tk.Label(frame_top, text="PERSONAL_BUDGET", bg='red', font=("Arial", 16, 'bold'))
+label_top.pack(pady=20)
+
+# Frame for MONEY_IN
+money_in_frame = ttk.Frame(window, width=250, height=180, padding="10", relief="sunken", borderwidth=2)
+money_in_frame.pack(side=tk.LEFT, padx=20, pady=20, anchor="n")
+
+money_in_title = ttk.Label(money_in_frame, text="Money In", font=("Arial", 14, 'bold'))
+money_in_title.grid(row=0, column=0, columnspan=2, pady=5)
+
+# Input fields in Money_In Frame:
+Total_sal_label = ttk.Label(money_in_frame, text="Total Salary:")
+Total_sal_label.grid(row=1, column=0, sticky=tk.W, pady=2)
+Total_sal_entry = ttk.Entry(money_in_frame, width=20)
+Total_sal_entry.grid(row=1, column=1, pady=2)
+
+Additional_income_label = ttk.Label(money_in_frame, text="Additional Income:")
+Additional_income_label.grid(row=2, column=0, sticky=tk.W, pady=2)
+Additional_income_entry = ttk.Entry(money_in_frame, width=20)
+Additional_income_entry.grid(row=2, column=1, pady=2)
+
+month_dropdown_options = [
+   " " , "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+]
+month_label = ttk.Label(money_in_frame, text="Month:")
+month_label.grid(row=3, column=0, sticky=tk.W, pady=2)
+month_var = tk.StringVar()
+month_dropdown = ttk.Combobox(money_in_frame, textvariable=month_var, values=month_dropdown_options, state="readonly")
+month_dropdown.grid(row=3, column=1, pady=2)
+month_dropdown.current(0)  # Set default value
+
+submit_button_in = ttk.Button(money_in_frame, text="Submit Money In", command=write_money_in_csv)
+submit_button_in.grid(row=4, column=0, columnspan=2, pady=10)
+
+# Frame for MONEY_OUT
+money_out_frame = ttk.Frame(window, width=300, height=250, padding="30", relief="sunken", borderwidth=2)
+money_out_frame.pack(side=tk.RIGHT, padx=20, pady=20, anchor="n")
+money_out_frame.pack_propagate(False)
+
+money_out_title = ttk.Label(money_out_frame, text="Money Out", font=("Arial", 14, 'bold'))
+money_out_title.grid(row=0, column=0, columnspan=2, pady=5)
+
+# Input fields for Money Out
+date_label = ttk.Label(money_out_frame, text="Date:")
+date_label.grid(row=1, column=0, sticky=tk.W, pady=2)
+entry_date = ttk.Entry(money_out_frame, width=20)
+entry_date.grid(row=1, column=1, pady=2)
+
+category_list_dropdown = [" ", "RENT/EMI", "Fuel", "Groceries", "Food", "Shopping", "Credit Card Bill", "Hydro"]
+category_label = ttk.Label(money_out_frame, text="Category:")
+category_label.grid(row=2, column=0, sticky=tk.W, pady=2)
+category_var = tk.StringVar()
+category_dropdown = ttk.Combobox(money_out_frame, textvariable=category_var, values=category_list_dropdown, state="readonly")
+category_dropdown.grid(row=2, column=1, pady=2)
+category_dropdown.current(0)  # Set default value
+
+expenditure_label = ttk.Label(money_out_frame, text="Expense Amount:")
+expenditure_label.grid(row=3, column=0, sticky=tk.W, pady=2)
+entry_expenditure = ttk.Entry(money_out_frame, width=20)
+entry_expenditure.grid(row=3, column=1, pady=2)
+
+submit_button_out = ttk.Button(money_out_frame, text="Submit Money Out", command=write_money_out_csv)
+submit_button_out.grid(row=4, column=0, columnspan=2, pady=10)
+
+window.mainloop()
