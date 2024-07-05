@@ -3,21 +3,22 @@ from tkinter import ttk
 from tkinter import messagebox
 import datetime
 import csv
-
+'''fucntion to get the values entered for Money In Frame 
+it returns a tuple month and Total income '''
 def Money_In_Frame():
     try:
         Total_sal = float(Total_sal_entry.get())
         Additional_income = float(Additional_income_entry.get())
         Total_income = Total_sal + Additional_income
         month = month_var.get()
-        if not month:
+        if not month or not Total_sal or not Additional_income:
             messagebox.showwarning("Input Error", "Please fill in all fields")
             return None
         return month, Total_income
     except ValueError:
         messagebox.showerror("Input Error", "Please enter valid numbers for salary and income")
         return None
-
+''' Funcitons write the date to a month specified  csv file eg:jan.csv writes the data    '''
 def write_money_in_csv():
     Money_In_data = Money_In_Frame()
     if Money_In_data:
@@ -26,12 +27,13 @@ def write_money_in_csv():
         with open(filename, "a", newline='') as Money_infile:
             writer = csv.writer(Money_infile)
             writer.writerow([month, Total_income])
-
+        messagebox.showinfo("Success", "MONTHLY INCOME  RECORDED SUCESSFULLY!!!")
+"""Function is created ti return category, date and expenditure for Money_out_Frame        """
 def Money_out_frame():
     category = category_var.get()
     date = entry_date.get()
     expenditure = entry_expenditure.get()
-    if not (category and date and expenditure):
+    if not category or not date or not expenditure:
         messagebox.showwarning("Input Error", "PLEASE FILL IN ALL FIELDS")
         return None
     try:
@@ -41,6 +43,7 @@ def Money_out_frame():
         messagebox.showerror("Input Error", "Expenditure should be a numeric value")
         return None
 
+'''Function writes the data expenses.csv file for Money_out_Frame     '''
 def write_money_out_csv():
     Money_out_data = Money_out_frame()
     if Money_out_data:
@@ -49,7 +52,8 @@ def write_money_out_csv():
         with open(filename, "a", newline='') as csv_out:
             writer = csv.writer(csv_out)
             writer.writerow([category, date, expenditure])
-
+        messagebox.showinfo("Success", "EXPENSES RECORDED SUCESSFULLY!!!")
+'''Function is created to clear all the entries fro all the Frames i.e Money_In_Frame ,Money_outFrame , Budget Frame       '''
 def clear_function():
     Total_sal_entry.delete(0, tk.END)
     Additional_income_entry.delete(0, tk.END)
@@ -58,38 +62,78 @@ def clear_function():
     entry_expenditure.delete(0, tk.END)
     category_var.set("")
     month_var.set("")
-
+    month_budget_var.set(" ")
+    category_budget_var.set(" ")
+    budget_entry.delete(0,tk.END)
+'''  Function is created for Budget Frame .In this function it gets the values 
+         entered by user in the GUI and Stores to  category_budgets.csv  i.e month,category and Budget_amount, added some
+         validation for Budget_Amount if the user enters the wrong value , A window will popup will error message window...'''
+#BugetFrame
+def write_category_budget_to_csv():
+    month = month_budget_var.get()
+    category = category_budget_var.get()
+    budget_amount = budget_entry.get()
+    if not month or not category or not budget_amount:
+        messagebox.showwarning("Input Error", "Please fill in all fields")
+        return None
+    try:
+        budget_amount = float(budget_amount)
+    except ValueError:
+        messagebox.showerror("Input Error", "Please enter a valid number for the budget")
+        return None
+    if check_month_category_budget_exists(month, category):
+        messagebox.showinfo("Info", f"The Budget for {category} in Month {month} is Already Set!!")
+        return None
+    filebudget = "category_budgets.csv"
+    with open(filebudget, "a", newline='') as budgetfile:
+        writer = csv.writer(budgetfile)
+        writer.writerow([month, category, budget_amount])
+    messagebox.showinfo("Success", "Monthly budget for category successfully set!")
+'''Function is created to check if the user is adding budget for same month again and again i
+  if the user the select same month and category it throws an error window saying YOU HAVE ALREADY RECORDED BUDGET FOR THIS MONTH'''
+def check_month_category_budget_exists(month, category):
+    try:
+        with open("category_budgets.csv", "r", newline='') as budgetfile:
+            reader = csv.reader(budgetfile)
+            for row in reader:
+                if row[0] == month and row[1] == category:
+                    return True
+    except FileNotFoundError:
+        with open("category_budgets.csv", "w", newline='') as budgetfile:
+            writer = csv.writer(budgetfile)
+            writer.writerow(["Month", "Category", "Budget"])  # Write headers if file not found
+        return False
+    return False
 # Initialize the main window
 window = tk.Tk()
 window.title("PERSONAL BUDGET TRACKER")
 window.geometry("800x600")
-
 # Grid configuration
 window.grid_columnconfigure(1, weight=1)
-
-# Top Frame
+# MAIN FRAME
 label_top = ttk.Label(window, text="PERSONAL BUDGET", font=("Arial", 16, 'bold'))
 label_top.grid(row=0, column=0, columnspan=2, sticky='ew', pady=20)
-
-# Frame for MONEY_IN
+#Money_in_Frame 
 money_in_frame = ttk.Frame(window, padding="10", relief="sunken", borderwidth=2)
 money_in_frame.grid(row=1, column=0, sticky='nsew', padx=20, pady=20)
-
-# Frame for MONEY_OUT
+#Money_outFrame
 money_out_frame = ttk.Frame(window, padding="10", relief="sunken", borderwidth=2)
 money_out_frame.grid(row=1, column=1, sticky='nsew', padx=20, pady=20)
-
-# Money In Frame Widgets
+#BugetFrame
+budget_frame=ttk.Frame(window,padding='10',relief="sunken",borderwidth=2)
+budget_frame.grid(row=2,column=0,sticky='nsew',padx=20,pady=20)
+#widgets for Money_In
+#Total salary -Inputfield
 Total_sal_label = ttk.Label(money_in_frame, text="Total Salary:")
 Total_sal_label.grid(row=0, column=0, sticky='w', padx=5, pady=2)
 Total_sal_entry = ttk.Entry(money_in_frame)
 Total_sal_entry.grid(row=0, column=1, padx=5, pady=2)
-
+#Additional Income -Inputfield
 Additional_income_label = ttk.Label(money_in_frame, text="Additional Income:")
 Additional_income_label.grid(row=1, column=0, sticky='w', padx=5, pady=2)
 Additional_income_entry = ttk.Entry(money_in_frame)
 Additional_income_entry.grid(row=1, column=1, padx=5, pady=2)
-
+#Select Month Input field
 month_dropdown_options=[
     " ","January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -100,18 +144,18 @@ month_var = tk.StringVar()
 month_dropdown = ttk.Combobox(money_in_frame, textvariable=month_var, values=month_dropdown_options, state="readonly")
 month_dropdown.grid(row=2, column=1, padx=5, pady=2)
 month_dropdown.current(0)
-
+#submit Button for MoneyIn frame 
 submit_button = ttk.Button(money_in_frame, text="Submit Money In", command=write_money_in_csv)
 submit_button.grid(row=3, column=0, columnspan=2, pady=10)
 
 # Money Out Frame Widgets
+#date -inputfield
 date_label = ttk.Label(money_out_frame, text="Date:")
 date_label.grid(row=0, column=0, sticky='w', padx=5, pady=2)
 entry_date = ttk.Entry(money_out_frame)
 entry_date.grid(row=0, column=1, padx=5, pady=2)
 entry_date.insert(0, datetime.datetime.now().strftime("%Y-%m-%d"))
-
-
+#Category -input field
 category_list_dropdown=[" ","RENT/EMI","Fuel","groceries","Food","Shopping","Creditcard bill",'hydro']
 category_label = ttk.Label(money_out_frame, text="Category:")
 category_label.grid(row=1, column=0, sticky='w', padx=5, pady=2)
@@ -119,16 +163,41 @@ category_var = tk.StringVar()
 category_dropdown = ttk.Combobox(money_out_frame, textvariable=category_var, values=category_list_dropdown, state="readonly")
 category_dropdown.grid(row=1, column=1, padx=5, pady=2)
 category_dropdown.current(0)
-
+#Expenditure -input field
 expenditure_label = ttk.Label(money_out_frame, text="Expense Amount:")
 expenditure_label.grid(row=2, column=0, sticky='w', padx=5, pady=2)
 entry_expenditure = ttk.Entry(money_out_frame)
 entry_expenditure.grid(row=2, column=1, padx=5, pady=2)
-
+#Submit -Button_money_out_frame 
 submit_button_out = ttk.Button(money_out_frame, text="Submit Money Out", command=write_money_out_csv)
 submit_button_out.grid(row=3, column=0, columnspan=2, pady=10)
 
-# Clear button
+#Budget Frame widget for category
+#Month-Input field
+Month_Budget_Label=ttk.Label(budget_frame,text="Month")
+Month_Budget_Label.grid(row=0,column=0,sticky='w',padx=5,pady=2)
+month_budget_var = tk.StringVar()
+month_dropdown = ttk.Combobox(budget_frame, textvariable=month_budget_var, values=month_dropdown_options, state="readonly")
+month_dropdown.grid(row=0, column=1, padx=5, pady=2)
+month_dropdown.current(0)
+#category -input field
+category_list_dropdown=[" ","RENT/EMI","Fuel","groceries","Food","Shopping","Creditcard bill",'hydro']
+category_label = ttk.Label(budget_frame, text="Category:")
+category_label.grid(row=1, column=0, sticky='w', padx=5, pady=2)
+category_budget_var = tk.StringVar()
+category_dropdown = ttk.Combobox(budget_frame, textvariable=category_budget_var, values=category_list_dropdown, state="readonly")
+category_dropdown.grid(row=1, column=1, padx=5, pady=2)
+category_dropdown.current(0)
+
+#Budget_Amount -input field
+Budet_Amount_label = ttk.Label(budget_frame, text="Expense Amount:")
+Budet_Amount_label.grid(row=2, column=0, sticky='w', padx=5, pady=2)
+budget_entry = ttk.Entry(budget_frame)
+budget_entry.grid(row=2, column=1, padx=5, pady=2)
+#submit button for Budget Frame 
+Submit_Budget = ttk.Button(budget_frame, text="Submit Budget", command=write_category_budget_to_csv)
+Submit_Budget.grid(row=3, column=0, columnspan=2, pady=10)
+# Clear button for Main frame 
 clear_button = ttk.Button(window, text="Clear Entry", command=clear_function, style='My.TButton')
 clear_button.grid(row=4, column=0, columnspan=2, pady=10)
 
