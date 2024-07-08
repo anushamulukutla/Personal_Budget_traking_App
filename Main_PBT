@@ -200,17 +200,17 @@ style.configure("TButton", background="Red", font=('Arial', 10))
 #Grid configuration
 window.grid_columnconfigure(1, weight=1)
 """ LABELING THE WINDOW   """
-label_top = ttk.Label(window, text="PERSONAL BUDGET", font=("Arial", 16, 'bold'))
+label_top = ttk.Label(window, text="PERSONAL BUDGET_Final", font=("Arial", 16, 'bold'))
 label_top.grid(row=0, column=0, columnspan=2, sticky='ew', pady=20)
 #Money_in_Frame
 money_in_frame = ttk.Frame(window,style='TFrame', padding="10", relief="sunken", borderwidth=2)
 money_in_frame.grid(row=1, column=0, sticky='nsew', padx=20, pady=20)
-money_in_label=ttk.Label(money_in_frame,text="MONEY_IN",font=("Arial", 16, 'bold'))
+money_in_label=ttk.Label(money_in_frame,text="Income",font=("Arial", 16, 'bold'))
 money_in_label.grid(row=0,column=0,columnspan=2,sticky='w',pady=0)
 #Money_outFrame
 money_out_frame = ttk.Frame(window, padding="10", relief="sunken", borderwidth=2)
 money_out_frame.grid(row=1, column=1, sticky='nsew', padx=20, pady=20)
-money_out_label=ttk.Label(money_out_frame,text="MONEY_OUT",font=("Arial", 16, 'bold'))
+money_out_label=ttk.Label(money_out_frame,text="Expenses",font=("Arial", 16, 'bold'))
 money_out_label.grid(row=0,column=0,columnspan=2,sticky='w',pady=0)
 #BugetFrame
 budget_frame = ttk.Frame(window, padding="10", relief="sunken", borderwidth=2)
@@ -220,7 +220,7 @@ budget_label.grid(row=0,column=0,columnspan=2,sticky='w',pady=0)
 # Graph Frame setup
 graph_frame = ttk.Frame(window, padding="10", relief="sunken", borderwidth=2)
 graph_frame.grid(row=2, column=1, sticky='nsew', padx=20, pady=20)
-graph_label = ttk.Label(graph_frame, text="GRAPH", font=("Arial", 16, 'bold'))
+graph_label = ttk.Label(graph_frame, text="Spending Analysis", font=("Arial", 16, 'bold'))
 graph_label.grid(row=0, column=0, columnspan=2, sticky='w', pady=0)
 
 
@@ -247,7 +247,7 @@ month_dropdown = ttk.Combobox(money_in_frame, textvariable=month_var, values=mon
 month_dropdown.grid(row=3, column=1, padx=5, pady=2)
 month_dropdown.current(0)
 #submit Button for MoneyIn frame
-submit_button = ttk.Button(money_in_frame, text="Submit Money In", command=write_money_in_csv)
+submit_button = ttk.Button(money_in_frame, text="Submit Income", command=write_money_in_csv)
 submit_button.grid(row=4, column=0, columnspan=2, pady=10)
 submit_button.configure(style='TButton')
 # Money Out Frame Widgets
@@ -257,22 +257,29 @@ date_label.grid(row=1, column=0, sticky='w', padx=5, pady=2)
 entry_date = ttk.Entry(money_out_frame)
 entry_date.grid(row=1, column=1, padx=5, pady=2)
 entry_date.insert(0, datetime.datetime.now().strftime("%Y-%m-%d"))
+#month-Input field
+month_ex_label = ttk.Label(money_out_frame, text="Month:")
+month_ex_label.grid(row=2, column=0, sticky='w', padx=5, pady=2)
+month_ex_var = tk.StringVar()
+month_ex_dropdown = ttk.Combobox(money_out_frame, textvariable=month_ex_var, values=month_dropdown_options, state="readonly")
+month_ex_dropdown.grid(row=2, column=1, padx=5, pady=2)
+month_ex_dropdown.current(0)
 #Category -input field
 category_list_dropdown=[" ","RENT/EMI","Fuel","groceries","Food","Shopping","Creditcard bill",'hydro']
 category_label = ttk.Label(money_out_frame, text="Category:")
-category_label.grid(row=2, column=0, sticky='w', padx=5, pady=2)
+category_label.grid(row=3, column=0, sticky='w', padx=5, pady=2)
 category_var = tk.StringVar()
 category_dropdown = ttk.Combobox(money_out_frame, textvariable=category_var, values=category_list_dropdown, state="readonly")
-category_dropdown.grid(row=2, column=1, padx=5, pady=2)
+category_dropdown.grid(row=3, column=1, padx=5, pady=2)
 category_dropdown.current(0)
 #Expenditure -input field
 expenditure_label = ttk.Label(money_out_frame, text="Expense Amount:")
-expenditure_label.grid(row=3, column=0, sticky='w', padx=5, pady=2)
+expenditure_label.grid(row=4, column=0, sticky='w', padx=5, pady=2)
 entry_expenditure = ttk.Entry(money_out_frame)
-entry_expenditure.grid(row=3, column=1, padx=5, pady=2)
+entry_expenditure.grid(row=4, column=1, padx=5, pady=2)
 #Submit -Button_money_out_frame
-submit_button_out = ttk.Button(money_out_frame, text="Submit Money Out", command=write_money_out_csv)
-submit_button_out.grid(row=4, column=0, columnspan=2, pady=10)
+submit_button_out = ttk.Button(money_out_frame, text="Submit Expenses", command=write_money_out_csv)
+submit_button_out.grid(row=5, column=0, columnspan=2, pady=10)
 submit_button_out.configure(style='TButton')
 #Budget Frame widget for category
 #Month-Input field
@@ -318,11 +325,11 @@ month_dropdown.grid(row=3, column=1, padx=5, pady=2)
 month_dropdown.current(0)
 
 #show graph button for
-show_graph = ttk.Button(graph_frame, text="Show Graph", command=lambda: generate_graph_actual_budget(month_var.get()))
+show_graph = ttk.Button(graph_frame, text="Actual vs Budget", command=lambda: generate_graph_actual_budget(month_var.get()))
 show_graph.grid(row=4, column=0, columnspan=2, pady=10)
 show_graph.configure(style='TButton')
 
-show_pie_chart = ttk.Button(graph_frame, text="Show Pie Chart", command=lambda: generate_pie_chart(month_var.get()))
+show_pie_chart = ttk.Button(graph_frame, text="Spending Analysis", command=lambda: generate_pie_chart(month_var.get()))
 show_pie_chart.grid(row=5, column=0, columnspan=2, pady=10)
 show_pie_chart.configure(style='TButton')
 
