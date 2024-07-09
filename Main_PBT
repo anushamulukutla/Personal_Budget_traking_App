@@ -180,18 +180,21 @@ def generate_pie_chart(month):
         plt.figure(figsize=(10, 6))
         plt.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=140)
         plt.axis('equal')
-        plt.title(f'Over/Under Spending for {month}')
+        plt.title(f' {month} Expenses Summary') #March Expense Summary
         plt.show()
 
     except FileNotFoundError as e:
         messagebox.showinfo("Error", f"Data file missing: {str(e)}")
     except Exception as e:
         messagebox.showinfo("Error", f"An error occurred: {str(e)}")
+#Function helps User to Exit from the application
+def exit_application():
+    window.quit()
 
 '''CREATING THE MAIN WINDOW !!!!'''
 window = tk.Tk()
 window.title("PERSONAL BUDGET TRACKER")
-window.geometry("800x600")
+window.geometry("900x800")
 window.configure(background="blue")
 # Create a style object and configure styles for TFrame and TButton
 style = ttk.Style()
@@ -339,4 +342,9 @@ clear_button = ttk.Button(window, text="Clear Entry", command=clear_function, st
 clear_button.grid(row=4, column=0, columnspan=2, pady=10)
 clear_button.configure(style='TButton')
 
+#Exit button to exit your  application
+
+exit_button = ttk.Button(window, text="Exit", command=exit_application)
+exit_button.grid(row=6, column=0, columnspan=2, pady=10)
+exit_button.configure(style='TButton')
 window.mainloop()
