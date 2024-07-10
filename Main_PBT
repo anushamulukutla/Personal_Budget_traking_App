@@ -13,11 +13,11 @@ def Money_In_Frame():
         Total_sal = float(Total_sal_entry.get())
         Additional_income = float(Additional_income_entry.get())
         Total_income = Total_sal + Additional_income
-        month = month_var.get()
+        month = month_income_var.get()
         if not month or not Total_sal or not Additional_income:
             messagebox.showwarning("Input Error", "Please fill in all fields")
             return None
-        return month, Total_income
+        return month, Total_income #it returns tuple
     except ValueError:
         messagebox.showerror("Input Error", "Please enter valid numbers for salary and income")
         return None
@@ -27,17 +27,16 @@ def Money_In_Frame():
 def write_money_in_csv():
     Money_In_data = Money_In_Frame()
     if Money_In_data:
-        month, Total_income = Money_In_data
+        month, Total_income = Money_In_data#unpacking tuple
         filename = f"{month}.csv"
         with open(filename, "a", newline='') as Money_infile:
             writer = csv.writer(Money_infile)
             writer.writerow([month, Total_income])
         messagebox.showinfo("Success", "MONTHLY INCOME RECORDED SUCCESSFULLY!!!")
 
-
 """Function is created ti return category, date and expenditure for Money_out_Frame        """
 
-def Money_out_frame():
+def Money_out_frame(): #expenses
     category = category_var.get()
     date = entry_date.get()
     month = month_ex_var.get()
@@ -47,7 +46,7 @@ def Money_out_frame():
         return None
     try:
         expenditure = float(expenditure)
-        return category, date, month, expenditure
+        return category, date, month, expenditure #it returns a tuple
     except ValueError:
         messagebox.showerror("Input Error", "Expenditure should be a numeric value")
         return None
@@ -72,7 +71,8 @@ def clear_function():
     entry_date.insert(0, datetime.datetime.now().strftime("%Y-%m-%d"))
     entry_expenditure.delete(0, tk.END)
     category_var.set("")
-    month_var.set("")
+    month_var.set(" ")
+    month_income_var.set(" ")
     month_budget_var.set(" ")
     category_budget_var.set(" ")
     budget_entry.delete(0, tk.END)
@@ -94,6 +94,7 @@ def write_category_budget_to_csv():
     except ValueError:
         messagebox.showerror("Input Error", "Please enter a valid number for the budget")
         return None
+    #calling the function to check weather selected month and cat exist
     if check_month_category_budget_exists(month, category):
         messagebox.showinfo("Info", f"The Budget for {category} in Month {month} is Already Set!!")
         return None
@@ -113,33 +114,35 @@ def check_month_category_budget_exists(month, category):
             reader = csv.reader(budgetfile)
             for row in reader:
                 if len(row) < 2:
-                    continue  # Skip rows that don't have enough columns
+                    continue  #here it skips the rows which don't have atleast 2 col
                 if row[0] == month and row[1] == category:
                     return True
     except FileNotFoundError:
         with open("category_budgets.csv", "w", newline='') as budgetfile:
             writer = csv.writer(budgetfile)
-            writer.writerow(["Month", "Category", "Budget"])  # Write headers if file not found
-        return False
-    return False
+            writer.writerow(["Month", "Category", "Budget"]) #giving headers if file not found
+        return False#so here the function returns false indicating that no entry was found
+    return False#If the loop completes without finding a match,
+    # the function returns False, indicating that no entry for the
+    # specified month and category exists.
 
 def generate_graph_actual_budget(month):
     try:
-        # Load data, ensuring headers are set correctly if your CSVs do not contain headers
+        # reading csv file into data frames by giving manual header for df_budget and df_expenses
         df_budget = pd.read_csv('category_budgets.csv', names=['Month', 'Category', 'Budget'], header=None)
         df_expenses = pd.read_csv(f'{month}_expenses.csv', names=['Date', 'Month', 'Category', 'Amount'], header=None)
 
-        # Filter data for the selected month and ensure categories are correctly labeled
+        #filtering data for specidied month .Where Month col mateches the specified month
         df_budget_month = df_budget[df_budget['Month'].str.strip().str.capitalize() == month.capitalize()]
         df_expenses_month = df_expenses[df_expenses['Month'].str.strip().str.capitalize() == month.capitalize()]
 
-        # Merge the budget and expenses data on Category
+        #merging the two data frames it merges the category and add suffix for Month_spent and Month_budget
+        #outer: Includes all categories from both dataframes. If a category is present in only one dataframe, the missing values for that category will be filled with NaN.
         df_merged = pd.merge(df_budget_month, df_expenses_month, on='Category', suffixes=('_Budget', '_Spent'), how='outer').fillna(0)
-
         # Set index to 'Category' for better plotting control
         df_merged.set_index('Category', inplace=True)
 
-        # Plotting side by side by specifying bar width and position
+        #plotting for bar graph for side by side bars to compare Actual vs Buget
         ax = df_merged[['Budget', 'Amount']].plot(kind='bar', color=['skyblue', 'orange'], width=0.8, position=0.5)
         plt.title(f'Budget vs Actual Expenditure for {month}')
         plt.xlabel('Category')
@@ -156,20 +159,20 @@ def generate_graph_actual_budget(month):
 
 def generate_pie_chart(month):
     try:
-        # Load data, ensuring headers are set correctly if your CSVs do not contain headers
+        #reading csv file into data frames by giving manual header for df_budget and df_expenses
         df_budget = pd.read_csv('category_budgets.csv', names=['Month', 'Category', 'Budget'], header=None)
         df_expenses = pd.read_csv(f'{month}_expenses.csv', names=['Date', 'Month', 'Category', 'Amount'], header=None)
 
-        # Filter data for the selected month and ensure categories are correctly labeled
+        # filtering data for specidied month .Where Month col mateches the specified month
         df_budget_month = df_budget[df_budget['Month'].str.strip().str.capitalize() == month.capitalize()]
         df_expenses_month = df_expenses[df_expenses['Month'].str.strip().str.capitalize() == month.capitalize()]
 
         # Merge the budget and expenses data on Category
         df_merged = pd.merge(df_budget_month, df_expenses_month, on='Category', suffixes=('_Budget', '_Spent'), how='outer').fillna(0)
 
-        # Calculate overspending and underspending
+        #Cal on spending
         df_merged['Difference'] = df_merged['Amount'] - df_merged['Budget']
-        df_merged['Difference'] = df_merged['Difference'].abs()  # Take the absolute value
+        df_merged['Difference'] = df_merged['Difference'].abs()  #take the absolute value
 
         # Prepare data for the pie chart
         labels = df_merged['Category']
@@ -245,8 +248,8 @@ month_dropdown_options=[
 ]
 month_label = ttk.Label(money_in_frame, text="Month:")
 month_label.grid(row=3, column=0, sticky='w', padx=5, pady=2)
-month_var = tk.StringVar()
-month_dropdown = ttk.Combobox(money_in_frame, textvariable=month_var, values=month_dropdown_options, state="readonly")
+month_income_var = tk.StringVar()
+month_dropdown = ttk.Combobox(money_in_frame, textvariable= month_income_var, values=month_dropdown_options, state="readonly")
 month_dropdown.grid(row=3, column=1, padx=5, pady=2)
 month_dropdown.current(0)
 #submit Button for MoneyIn frame
@@ -342,7 +345,7 @@ clear_button = ttk.Button(window, text="Clear Entry", command=clear_function, st
 clear_button.grid(row=4, column=0, columnspan=2, pady=10)
 clear_button.configure(style='TButton')
 
-#Exit button to exit your  application
+#Exit button to exit yhr application
 
 exit_button = ttk.Button(window, text="Exit", command=exit_application)
 exit_button.grid(row=6, column=0, columnspan=2, pady=10)
